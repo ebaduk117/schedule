@@ -334,7 +334,7 @@
     <div class="w-full h-full flex flex-col border border-darkborder rounded-lg overflow-hidden bg-slate-950/50">
 
       <!-- Table Header (Days of Week) -->
-      <div class="grid grid-cols-[55px_repeat(7,_1fr)] bg-slate-900 border-b border-slate-700 text-[11px] font-bold text-slate-300 uppercase tracking-wider text-center flex-none">
+      <div class="grid grid-cols-[75px_repeat(7,_1fr)] bg-slate-900 border-b border-slate-700 text-[11px] font-bold text-slate-300 uppercase tracking-wider text-center flex-none">
         <div class="py-1 border-r border-slate-700 text-slate-500 font-mono">Time</div>
         <div class="py-1 border-r border-slate-800">Sun</div>
         <div class="py-1 border-r border-slate-800 bg-slate-800/20">Mon</div>
@@ -565,6 +565,15 @@
       return `${h - 12} PM`;
     }
 
+    // "6-7 PM", and "11 AM-12 PM" / "11 PM-12 AM" when the hour crosses noon or midnight
+    function formatHourRange(h) {
+      const next = (h + 1) % 24;
+      const to12 = x => (x % 12 === 0 ? 12 : x % 12);
+      const suffix = x => (x < 12 ? 'AM' : 'PM');
+      if (suffix(h) === suffix(next)) return `${to12(h)}-${to12(next)} ${suffix(h)}`;
+      return `${to12(h)} ${suffix(h)}-${to12(next)} ${suffix(next)}`;
+    }
+
     function formatSlotInterval(h) {
       const nextH = (h + 1) % 24;
       return `${formatHourLabel(h)} - ${formatHourLabel(nextH)}`;
@@ -606,12 +615,12 @@
       // Render 24 rows matching HOUR_ORDER starting at 4:00 AM
       HOUR_ORDER.forEach((h) => {
         const rowDiv = document.createElement('div');
-        rowDiv.className = "grid grid-cols-[55px_repeat(7,_1fr)] divide-x divide-slate-800/80 min-h-0 items-stretch";
+        rowDiv.className = "grid grid-cols-[75px_repeat(7,_1fr)] divide-x divide-slate-800/80 min-h-0 items-stretch";
 
         // Time Column Header
         const timeCol = document.createElement('div');
         timeCol.className = "flex items-center justify-center font-mono text-[9px] text-slate-400 font-semibold bg-slate-900/80 select-none border-b border-slate-800";
-        timeCol.innerText = formatHourLabel(h);
+        timeCol.innerText = formatHourRange(h);
         rowDiv.appendChild(timeCol);
 
         // 7 Day Cells (Sun - Sat)
